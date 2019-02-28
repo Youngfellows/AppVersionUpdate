@@ -12,6 +12,7 @@ import com.aispeech.tvui.common.net.RetrofitFileUtils;
 import com.aispeech.tvui.common.util.URLUtils;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,10 +65,13 @@ public class RetrofitManager {
             RetrofitFileUtils.downloadFile(baseUrl, downloadEntity, new RetrofitCallback<ResponseBody>() {
                 @Override
                 public void onSuccess(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    Log.i(TAG, "onSuccess ");
+                    Log.i(TAG, "onSuccess: code = " + response.code());
+                    InputStream is = null;
+                    FileOutputStream fos = null;
+                    BufferedInputStream bis = null;
                     try {
-                        InputStream is = response.body().byteStream();
-                        Log.i("TAG", "is = " + is.toString());
+                        is = response.body().byteStream();
+                        //Log.i("TAG", "is = " + is.toString());
 
                         // String path = "/sdcard/Download";
                         // File f = new File(path);
@@ -84,24 +88,24 @@ public class RetrofitManager {
                             file.delete();
                         }
 
-                        FileOutputStream fos = new FileOutputStream(file);
-                        BufferedInputStream bis = new BufferedInputStream(is);
+                        fos = new FileOutputStream(file);
+                        bis = new BufferedInputStream(is);
                         byte[] buffer = new byte[1024];
                         int len;
                         while ((len = bis.read(buffer)) != -1) {
                             fos.write(buffer, 0, len);
                         }
                         fos.flush();
-                        fos.close();
-                        bis.close();
-                        is.close();
                         Log.i(TAG, "文件保存成功");
-
                         if (callback != null) {
                             callback.onSuccess(file);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } finally {
+                        closeStream(is);
+                        closeStream(fos);
+                        closeStream(bis);
                     }
                 }
 
@@ -126,6 +130,19 @@ public class RetrofitManager {
             e.printStackTrace();
             if (callback != null) {
                 callback.onFailure(new Throwable("baseUrl参数异常: " + baseUrl));
+            }
+        }
+    }
+
+    /**
+     * 关闭IO流
+     */
+    private void closeStream(Closeable stream) {
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -216,7 +233,7 @@ public class RetrofitManager {
 
         String url = URLUtils.getUrl(baseURL);
         String baseUrl = URLUtils.getHost(baseURL);
-        Log.i(TAG, "baseUrl == "+baseUrl);
+        Log.i(TAG, "baseUrl == " + baseUrl);
         Log.i(TAG, "url == " + url);
 
         Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();

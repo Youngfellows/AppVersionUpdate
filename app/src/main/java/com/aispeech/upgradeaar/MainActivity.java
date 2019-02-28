@@ -8,6 +8,8 @@ import android.view.View;
 import com.aispeech.tvui.common.interfaces.DoanloadCallback;
 import com.aispeech.tvui.common.interfaces.UpgradeRequestCallBack;
 import com.aispeech.tvui.common.manager.RetrofitManager;
+import com.aispeech.tvui.common.retrofit.DownloadListener;
+import com.aispeech.tvui.common.retrofit.RetrofitClient;
 import com.aispeech.tvui.common.util.URLUtils;
 import com.aispeech.upgrade.base.TvuiUpgrade;
 import com.aispeech.upgrade.bean.Content;
@@ -97,12 +99,52 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 下载APK
+     *
+     * @param view
+     */
+    public void download2(View view) {
+        Log.i(TAG, "使用simin方式下载");
+
+        //        final String fileUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/tvui-tv/tvui-tv-dangbei-1.0.11.180929.2-1011.apk";
+        //        final String fileUrl = "http://bsl-cdn.ottboxer.cn/apkmarket_file/app/video/iqiyi_voice/GitvVideo-release-one-weihaokeji-kaV11906-tv8.1.0-r73356-gitv-auto_player.apk";
+
+        //        final String fileUrl = "http://bsl-cdn.ottboxer.cn/apkmarket_file/app/system_recommend/gqzbncb/BA_LIVE[BETA]_ALI_20180831_10022.apk";
+
+        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/video/CIBN_dangbei/10034989_CIBN_CoolMiao_dangbei12.apk";
+
+        //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/video/ystjg/tv_video_3.3.2.2020_android_13090.apk";
+
+        //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
+
+        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DoanloadCallback() {
+
+        RetrofitClient.getRetrofitClient().download(fileUrl, "sdcard/Download/", "simin_download333.apk", new DownloadListener() {
+            @Override
+            public void onSuccess(File file) {
+                Log.i(TAG, "simin onSuccess path: " + file.getPath());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                Log.e(TAG, "simin onFailure " + error.getMessage());
+            }
+
+            @Override
+            public void onLoading(long total, long progress, boolean done) {
+                Log.i(TAG, "simin onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
+            }
+        });
+    }
+
 
     /**
      * 更新配置单
      *
      * @param view
      */
+
     public void upgradeConfig(View view) {
         //        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/version-guide-1.1.json";
         String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/tvuipublic/version-guide-1.1.json";
