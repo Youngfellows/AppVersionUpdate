@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.manager.RetrofitManager;
 import com.aispeech.tvui.common.util.URLUtils;
@@ -79,7 +79,7 @@ public class LauncherActivity extends AppCompatActivity {
 
         //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
 
-        RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DoanloadCallback() {
+        RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DownloadCallback() {
             @Override
             public void onSuccess(File file) {
                 Log.i(TAG, "onSuccess path: " + file.getPath());

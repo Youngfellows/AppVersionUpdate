@@ -3,7 +3,7 @@ package com.aispeech.tvui.common.interfaces;
 import java.io.File;
 
 
-public interface DoanloadCallback {
+public interface DownloadCallback {
 
     /**
      * 文件下载成功并保存

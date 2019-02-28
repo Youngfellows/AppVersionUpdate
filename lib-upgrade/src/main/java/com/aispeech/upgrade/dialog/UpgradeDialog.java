@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.ColorRes;
@@ -79,7 +80,11 @@ public class UpgradeDialog {
          */
         private void setDialogSize() {
             //设置可以在服务或者广播中开启弹框
-            mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){//6.0+
+                mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+            }else {
+                mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            }
             WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             mWidth = windowManager.getDefaultDisplay().getWidth();
             mHeight = windowManager.getDefaultDisplay().getHeight();

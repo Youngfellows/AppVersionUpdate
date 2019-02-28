@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.manager.RetrofitManager;
 import com.aispeech.tvui.common.retrofit.DownloadListener;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
 
-        RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DoanloadCallback() {
+        RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DownloadCallback() {
             @Override
             public void onSuccess(File file) {
                 Log.i(TAG, "onSuccess path: " + file.getPath());
@@ -118,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
 
         //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
 
-        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DoanloadCallback() {
+        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DownloadCallback() {
 
-        RetrofitClient.getRetrofitClient().download(fileUrl, "sdcard/Download/", "simin_download333.apk", new DownloadListener() {
+        RetrofitClient.getInstance().download(fileUrl, "sdcard/Download/", "simin_download333.apk", new DownloadListener() {
             @Override
             public void onSuccess(File file) {
                 Log.i(TAG, "simin onSuccess path: " + file.getPath());
@@ -157,9 +157,9 @@ public class MainActivity extends AppCompatActivity {
 
         //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
 
-        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DoanloadCallback() {
+        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DownloadCallback() {
 
-        RetrofitClient.getRetrofitClient().download(fileUrl, new DoanloadCallback() {
+        RetrofitClient.getInstance().download(fileUrl, new DownloadCallback() {
             @Override
             public void onSuccess(File file) {
 
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         //        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/version-guide-1.1.json";
         String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/tvuipublic/version-guide-1.1.json";
 
-        RetrofitClient.getRetrofitClient().upgradeConfig(configUrl, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+        RetrofitClient.getInstance().upgradeConfig(configUrl, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
             @Override
             public void requestSuccess(String data) {
                 UpdateAppConfigBean configBean = JSON.parseObject(data, UpdateAppConfigBean.class);
@@ -336,8 +336,8 @@ public class MainActivity extends AppCompatActivity {
          *  url = http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade?productId=278574056&versionCode=1010&deviceId=985664e014ef446db706de665035949d&packageName=com.aispeech.tvui
          */
 
-        String url = "http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade";//测试环境
-        //        String url = "http://api.iot.aispeech.com/skyline-iot-api/api/v2/tv/versionUpgrade";//正式环境
+//        String url = "http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade";//测试环境
+        String url = "http://api.iot.aispeech.com/skyline-iot-api/api/v2/tv/versionUpgrade";//正式环境
         String productId = "278574056";
         String versionCode = "1005";
         String deviceId = "985664e014ef446db706de665035949d";
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
         map.put("deviceId", deviceId);
         map.put("packageName", packageName);
 
-        RetrofitClient.getRetrofitClient().upgradeVersion(url, map, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+        RetrofitClient.getInstance().upgradeVersion(url, map, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
             @Override
             public void requestSuccess(String data) {
                 Log.i(TAG, "si.min onSuccess 版本更新信息==>> " + data);
@@ -381,8 +381,8 @@ public class MainActivity extends AppCompatActivity {
          *  url = http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade?productId=278574056&versionCode=1010&deviceId=985664e014ef446db706de665035949d&packageName=com.aispeech.tvui
          */
 
-        String url = "http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade";//测试环境
-        //String url = "http://api.iot.aispeech.com/skyline-iot-api/api/v2/tv/versionUpgrade";//正式环境
+//        String url = "http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade";//测试环境
+        String url = "http://api.iot.aispeech.com/skyline-iot-api/api/v2/tv/versionUpgrade";//正式环境
         String productId = "278574056";
         String versionCode = "1005";
         String deviceId = "985664e014ef446db706de665035949d";

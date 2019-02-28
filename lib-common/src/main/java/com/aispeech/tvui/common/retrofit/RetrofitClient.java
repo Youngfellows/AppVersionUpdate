@@ -2,10 +2,11 @@ package com.aispeech.tvui.common.retrofit;
 
 import android.util.Log;
 
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.net.RetrofitCallback;
 import com.aispeech.tvui.common.util.TLog;
+import com.aispeech.tvui.common.util.URLUtils;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
@@ -28,22 +29,14 @@ import retrofit2.Retrofit;
 
 public class RetrofitClient extends BaseRetrofit implements ApiFuction {
     private String TAG = getClass().getSimpleName();
-
-    private volatile static RetrofitClient retrofitClient;
-    private Retrofit retrofit;
-    private ApiService apiService;
+    private volatile static RetrofitClient instance;
+    private ApiService mCommonApiService;
 
     /**
      * 构造方法，初始化retrofit和apiService
      */
-    public RetrofitClient() {
-        retrofit = getRetrofit();
-        apiService = retrofit.create(ApiService.class);
-    }
-
-    @Override
-    protected String getBaseUrl() {
-        return "https://api.github.com";
+    private RetrofitClient() {
+        mCommonApiService = getRetrofit();
     }
 
     /**
@@ -51,15 +44,15 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      *
      * @return
      */
-    public static RetrofitClient getRetrofitClient() {
-        if (retrofitClient == null) {
+    public static RetrofitClient getInstance() {
+        if (instance == null) {
             synchronized (RetrofitClient.class) {
-                if (retrofitClient == null) {
-                    return new RetrofitClient();
+                if (instance == null) {
+                    instance = new RetrofitClient();
                 }
             }
         }
-        return retrofitClient;
+        return instance;
     }
 
     /**
@@ -69,7 +62,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @return
      */
     public String syncGet(String url) {
-        Call<ResponseBody> call = apiService.executeGet(url);
+        Call<ResponseBody> call = mCommonApiService.executeGet(url);
         String result = "";
         try {
             result = call.execute().body().string();
@@ -87,7 +80,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param map
      */
     public String syncGet(String url, Map<String, String> map) {
-        Call<ResponseBody> call = apiService.executeGet(url, map);
+        Call<ResponseBody> call = mCommonApiService.executeGet(url, map);
         String result = "";
         try {
             result = call.execute().body().string();
@@ -106,7 +99,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @return
      */
     public String syncPost(String url, Map<String, String> map) {
-        Call<ResponseBody> call = apiService.executePost(url, map);
+        Call<ResponseBody> call = mCommonApiService.executePost(url, map);
         String result = "";
         try {
             result = call.execute().body().string();
@@ -123,7 +116,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param url 地址
      */
     public void asyncGet(String url, final RequestCallback callback) {
-        Call<ResponseBody> call = apiService.executeGet(url);
+        Call<ResponseBody> call = mCommonApiService.executeGet(url);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -153,7 +146,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param map 参数集合
      */
     public void asyncGet(String url, Map<String, String> map, final RequestCallback callback) {
-        Call<ResponseBody> call = apiService.executeGet(url, map);
+        Call<ResponseBody> call = mCommonApiService.executeGet(url, map);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -183,7 +176,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param map 参数集合
      */
     public void asyncPost(String url, Map<String, String> map, final RequestCallback callback) {
-        Call<ResponseBody> call = apiService.executePost(url, map);
+        Call<ResponseBody> call = mCommonApiService.executePost(url, map);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -216,7 +209,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      */
     @Override
     public void upgradeVersion(String baseURL, Map<String, String> map, final UpgradeRequestCallBack callback) {
-        Call<ResponseBody> call = apiService.executeGet(baseURL, map);
+        Call<ResponseBody> call = mCommonApiService.executeGet(baseURL, map);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -247,7 +240,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      */
     @Override
     public void upgradeConfig(String configUrl, final UpgradeRequestCallBack callback) {
-        Call<ResponseBody> call = apiService.executeGet(configUrl);
+        Call<ResponseBody> call = mCommonApiService.executeGet(configUrl);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -281,7 +274,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      */
     @Override
     public void download(final String fileUrl, final String dirPath, final String fileName, final DownloadListener callback) {
-        Call<ResponseBody> call = apiService.downloadFile(fileUrl);
+        Call<ResponseBody> call = mCommonApiService.downloadFile(fileUrl);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
@@ -372,12 +365,19 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      *
      * @param fileUrl 下载路径
      */
-    public void download(final String fileUrl, final DoanloadCallback doanloadCallback) {
+    public void download(final String fileUrl, final DownloadCallback downloadCallback) {
+        String url = URLUtils.getUrl(fileUrl);
+        String baseUrl = URLUtils.getHost(fileUrl);
+        Log.i(TAG, baseUrl);
+        Log.i(TAG, url);
 
         RetrofitCallback<ResponseBody> retrofitCallback = new RetrofitCallback<ResponseBody>() {
             @Override
             public void onSuccess(Call<ResponseBody> call, Response<ResponseBody> response) {
                 Log.i(TAG, "onSuccess: code = " + response.code());
+                if (response.isSuccessful()) {
+
+                }
             }
 
             @Override
@@ -391,28 +391,13 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
                 Log.i(TAG, "onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
             }
         };
-        Retrofit retrofit = getRetrofit(retrofitCallback);
+
+        Retrofit retrofit = getRetrofit(baseUrl, retrofitCallback);
         ApiService apiService = retrofit.create(ApiService.class);
-        Call<ResponseBody> call = apiService.downloadFile(fileUrl);
+        Call<ResponseBody> call = apiService.download(url);
         call.enqueue(retrofitCallback);
     }
 
-    private RetrofitCallback<ResponseBody> mRetrofitCallback = new RetrofitCallback<ResponseBody>() {
-        @Override
-        public void onSuccess(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-        }
-
-        @Override
-        public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-        }
-
-        @Override
-        public void onLoading(long total, long progress, boolean done) {
-            super.onLoading(total, progress, done);
-        }
-    };
 
     /**
      * 上送数据
@@ -425,7 +410,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
         TLog.d(TAG, "json: " + json + "\n");
         final RequestBody requestBody = RequestBody.create(MediaType.parse(
                 "application/json; charset=utf-8"), json);
-        Call<ResponseBody> call = apiService.upLoadJson(url, requestBody);
+        Call<ResponseBody> call = mCommonApiService.upLoadJson(url, requestBody);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -472,7 +457,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
         //文件处理
         RequestBody filebody = RequestBody.create(MediaType.parse("application/octet-stream"), file);
         MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), filebody);
-        Call<ResponseBody> call = apiService.upLoadFile(url, mapRequestBody, filePart);
+        Call<ResponseBody> call = mCommonApiService.upLoadFile(url, mapRequestBody, filePart);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

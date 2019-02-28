@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.manager.RetrofitManager;
 import com.aispeech.tvui.common.util.AppVersionUtils;
@@ -68,7 +68,7 @@ public class BaseUpgrade {
      * @param fileName 文件名
      * @param callback 文件名
      */
-    public static void requestDownload(String fileUrl, String dirPath, String fileName, DoanloadCallback callback) {
+    public static void requestDownload(String fileUrl, String dirPath, String fileName, DownloadCallback callback) {
         RetrofitManager.getInstance().download(fileUrl, dirPath, fileName, callback);
     }
 

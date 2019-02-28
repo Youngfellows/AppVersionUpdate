@@ -81,26 +81,18 @@
             android:onClick="upgradeInstall"
             android:text="测试升级安裝流程"/>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="getHost"
+            android:text="获取域名"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="upgradeInstall2"
-            android:text="测试升级安裝流程"/>
+            android:onClick="showDialog"
+            android:text="显示对话框"/>
+
     </LinearLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="getHost"
-        android:text="获取域名"/>
-
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="showDialog"
-        android:text="显示对话框"/>
-
 
 </LinearLayout>

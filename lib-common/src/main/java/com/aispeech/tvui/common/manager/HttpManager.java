@@ -1,7 +1,7 @@
 package com.aispeech.tvui.common.manager;
 
 
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.retrofit.RetrofitClient;
 
@@ -41,7 +41,7 @@ public class HttpManager {
      * @param url
      */
     public void get(String url, final RequestCallback callback) {
-        RetrofitClient.getRetrofitClient().asyncGet(url, callback);
+        RetrofitClient.getInstance().asyncGet(url, callback);
     }
 
     /**
@@ -51,7 +51,7 @@ public class HttpManager {
      * @param map
      */
     public void get(String url, Map<String, String> map, final RequestCallback callback) {
-        RetrofitClient.getRetrofitClient().asyncGet(url, map, callback);
+        RetrofitClient.getInstance().asyncGet(url, map, callback);
     }
 
     /**
@@ -62,7 +62,7 @@ public class HttpManager {
      * @param fileName
      * @param callback
      */
-    public void download(String fileUrl, final String dirPath, final String fileName, final DoanloadCallback callback) {
+    public void download(String fileUrl, final String dirPath, final String fileName, final DownloadCallback callback) {
 
     }
 

@@ -32,18 +32,18 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public abstract class BaseRetrofit {
-    private Retrofit retrofit;
     private static final int DEFAULT_TIME_OUT = 5;//超时时间 5s
     private static final int DEFAULT_READ_TIME_OUT = 60;//读操作时间
 
-    protected abstract String getBaseUrl();
+    protected static final String BASE_URL = "http://www.aispeech.com/";
+    //protected static final String BASE_URL = "https://www.baidu.com/";
 
     /**
-     * 获取普通请求的Retrofit
+     * 获取普通请求的Retrofit Service
      *
-     * @return
+     * @return 返回接口服务对象
      */
-    protected Retrofit getRetrofit() {
+    protected ApiService getRetrofit() {
         OkHttpClient.Builder client = new OkHttpClient.Builder();
         client.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.SECONDS);//连接超时时间
         client.writeTimeout(DEFAULT_READ_TIME_OUT, TimeUnit.SECONDS);//读操作超时时间
@@ -65,11 +65,13 @@ public abstract class BaseRetrofit {
                 return cookies != null ? cookies : new ArrayList<Cookie>();
             }
         });
-        return new Retrofit.Builder()
-                .baseUrl(getBaseUrl())
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
                 .client(client.build())
                 .addConverterFactory(GsonConverterFactory.create())//Gson
                 .build();
+        ApiService apiService = retrofit.create(ApiService.class);
+        return apiService;
     }
 
 
@@ -80,7 +82,7 @@ public abstract class BaseRetrofit {
      * @param <T>
      * @return
      */
-    protected <T> Retrofit getRetrofit(final RetrofitCallback<T> callback) {
+    protected <T> Retrofit getRetrofit(String baseUrl, final RetrofitCallback<T> callback) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.addInterceptor(new Interceptor() {
             @Override
@@ -100,9 +102,9 @@ public abstract class BaseRetrofit {
         Retrofit retrofit = new Retrofit.Builder()
                 .client(builder.build())
                 //.client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
+                //.addConverterFactory(GsonConverterFactory.create())
                 //.baseUrl(BASE_URL)
-                .baseUrl(getBaseUrl())
+                .baseUrl(baseUrl)
                 .build();
 
         return retrofit;

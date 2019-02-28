@@ -3,7 +3,7 @@ package com.aispeech.tvui.common.manager;
 import android.util.Log;
 
 import com.aispeech.tvui.common.entity.FileDownloadEntity;
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.net.IApiService;
 import com.aispeech.tvui.common.net.RetrofitCallback;
@@ -51,7 +51,7 @@ public class RetrofitManager {
      * @param fileName 保存的文件名
      * @param callback 下载回调
      */
-    public void download(String fileUrl, final String dirPath, final String fileName, final DoanloadCallback callback) {
+    public void download(String fileUrl, final String dirPath, final String fileName, final DownloadCallback callback) {
 
         //        String path = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/tvui-tv/tvui-tv-dangbei-1.0.11.180929.2-1011.apk";
         //        fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/video/ystjg/tv_video_3.3.2.2020_android_13090.apk";

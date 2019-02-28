@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
-import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.util.AppVersionUtils;
 import com.aispeech.tvui.common.util.PreferenceUtils;
@@ -618,7 +618,7 @@ public class UpgradeService extends Service {
     /**
      * 下载回调
      */
-    private DoanloadCallback mDoanloadCallback = new DoanloadCallback() {
+    private DownloadCallback mDoanloadCallback = new DownloadCallback() {
         @Override
         public void onSuccess(File file) {
             Log.d(TAG, "downloadSuccess: 是否显示安装提示框" + Constants.DISPLAY_INSTALL_DIALOG + " ,是否静默安装 " + (InstallerType.SLIENT == mInstallType) + " ,apk是否存在: " + file.exists() + " ,path = " + file.getPath());
@@ -807,7 +807,7 @@ public class UpgradeService extends Service {
      * @param fileName         APK保存名称
      * @param downloadCallback 下载回调
      */
-    private void showDownloadDialog(String changlog, final String url, final String dirPath, final String fileName, final DoanloadCallback downloadCallback) {
+    private void showDownloadDialog(String changlog, final String url, final String dirPath, final String fileName, final DownloadCallback downloadCallback) {
         Log.i(TAG, "showDownloadDialog: 对话框是否显示 isShowDialog = " + isShowDialog + ", mUpgradeDialog = " + mUpgradeDialog);
         if (isShowDialog) {
             Log.i(TAG, "showDownloadDialog: 对话框已经在显示了,先将他消失掉");
