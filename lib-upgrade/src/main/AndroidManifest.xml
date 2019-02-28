@@ -1,0 +1,48 @@
+<manifest package="com.aispeech.upgrade"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="keyboard|screenSize|orientation|layoutDirection"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER"/>
+
+                <action android:name="aispeech.tvui.action.SEARCHDISPLAY"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.UpgradeService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
+        <!--闹钟广播-->
+        <receiver android:name=".receiver.AlarmReceiver">
+            <intent-filter>
+                <action android:name="com.aispeech.tvui.ALARM_ACTION_UPGRADE"/>
+                <action android:name="com.aispeech.tvui.ALARM_ACTION_INSTALLER"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
