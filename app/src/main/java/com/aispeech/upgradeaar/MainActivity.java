@@ -177,6 +177,42 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 获取更新配置
+     *
+     * @param view
+     */
+    public void upgradeConfig2(View view) {
+        //        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/version-guide-1.1.json";
+        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/tvuipublic/version-guide-1.1.json";
+
+        RetrofitClient.getRetrofitClient().upgradeConfig(configUrl, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+            @Override
+            public void requestSuccess(String data) {
+                UpdateAppConfigBean configBean = JSON.parseObject(data, UpdateAppConfigBean.class);
+                List<Content> appArray = configBean.getContent();
+                Content tvuiApp = null;//TVUI下载信息
+                for (Content app : appArray) {
+                    String component = app.getComponent();
+                    String mDownVersionName = app.getVersionName();
+                    int mDownVersionCode = Integer.parseInt(app.getVersionCode());
+                    String mMd5 = app.getMd5();//APK的MD5值
+                    String changeLog = app.getChangeLog();
+                    String changlog = changeLog;
+                    String appUrl = app.getUrl();
+
+                    Log.d(TAG, "si.min component: " + component + "\nversionCode: " + mDownVersionCode + "\nversionName: " + mDownVersionName + "\nmd5: " + mMd5 + "\nappUrl: " + appUrl + "\nchangeLog: " + changeLog);
+
+                }
+            }
+
+            @Override
+            public void requestError(String exception) {
+                Log.e(TAG, "requestError " + exception);
+            }
+        });
+    }
+
 
     /**
      * 获取版本更新信息
@@ -231,6 +267,60 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "requestError " + exception);
             }
         });
+    }
+
+    /**
+     * 获取版本信息
+     *
+     * @param view
+     */
+    public void upgradeVersion2(View view) {
+        /**
+         * 触发网络请求,先拉取是否可以更新
+         * mBaseUrl: http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade ,productId: 278572232 ,deviceId: 4d07e4be9184e15a8b483c97077e171b
+         * url = http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade?productId=278572232&versionCode=1005&deviceId=4d07e4be9184e15a8b483c97077e171b&packageName=com.aispeech.tvui
+         */
+        //        String url = "http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade";//测试环境
+        //        String url = "http://api.iot.aispeech.com/skyline-iot-api/api/v2/tv/versionUpgrade";//正式环境
+        //        String productId = "278572232";
+        //        String versionCode = "1005";
+        //        String deviceId = "4d07e4be9184e15a8b483c97077e171b";
+        //        String packageName = "com.aispeech.tvui";
+
+        //        mBaseUrl: http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade ,productId: 278572232 ,deviceId: 4d07e4be9184e15a8b483c97077e171b
+        //        url = http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade?productId=278572232&versionCode=1005&deviceId=4d07e4be9184e15a8b483c97077e171b&packageName=com.aispeech.tvui
+
+
+        //当贝
+        /**
+         *  mBaseUrl: http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade ,productId: 278574056 ,deviceId: 985664e014ef446db706de665035949d
+         *  url = http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade?productId=278574056&versionCode=1010&deviceId=985664e014ef446db706de665035949d&packageName=com.aispeech.tvui
+         */
+
+        String url = "http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade";//测试环境
+        //        String url = "http://api.iot.aispeech.com/skyline-iot-api/api/v2/tv/versionUpgrade";//正式环境
+        String productId = "278574056";
+        String versionCode = "1005";
+        String deviceId = "985664e014ef446db706de665035949d";
+        String packageName = "com.aispeech.tvui";
+
+        Map<String, String> map = new HashMap<>();
+        map.put("productId", productId);
+        map.put("versionCode", versionCode);
+        map.put("deviceId", deviceId);
+        map.put("packageName", packageName);
+
+       RetrofitClient.getRetrofitClient().upgradeVersion(url, map, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+           @Override
+           public void requestSuccess(String data) {
+               Log.i(TAG, "si.min requestSuccess 版本更新信息==>> " + data);
+           }
+
+           @Override
+           public void requestError(String exception) {
+               Log.e(TAG, "requestError " + exception);
+           }
+       });
     }
 
     /**
