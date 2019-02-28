@@ -2,9 +2,7 @@ package com.aispeech.tvui.common.retrofit;
 
 import java.io.File;
 
-/**
- * Created by Alex on 2018/10/28.
- */
+
 
 public interface DownloadListener {
     /**

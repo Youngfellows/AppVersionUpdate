@@ -13,15 +13,11 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
-import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 
-/**
- *  自定义添加header功能未添加
- * Created by Alex on 2018/10/24.
- */
+
 
 public interface ApiService {
 

@@ -25,10 +25,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by Alex on 2018/9/26.
- */
-
 public abstract class BaseRetrofit {
     private Retrofit retrofit;
     private static final int DEFAULT_TIME_OUT = 5;//超时时间 5s
