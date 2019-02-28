@@ -2,6 +2,10 @@ package com.aispeech.tvui.common.retrofit;
 
 import android.annotation.SuppressLint;
 
+import com.aispeech.tvui.common.net.FileResponseBody;
+import com.aispeech.tvui.common.net.RetrofitCallback;
+
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -20,7 +24,9 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -32,7 +38,12 @@ public abstract class BaseRetrofit {
 
     protected abstract String getBaseUrl();
 
-    protected Retrofit getRetrofit(){
+    /**
+     * 获取普通请求的Retrofit
+     *
+     * @return
+     */
+    protected Retrofit getRetrofit() {
         OkHttpClient.Builder client = new OkHttpClient.Builder();
         client.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.SECONDS);//连接超时时间
         client.writeTimeout(DEFAULT_READ_TIME_OUT, TimeUnit.SECONDS);//读操作超时时间
@@ -42,6 +53,7 @@ public abstract class BaseRetrofit {
         client.hostnameVerifier(new TrustAllHostnameVerifier());
         client.cookieJar(new CookieJar() {
             private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
+
             @Override
             public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
                 cookieStore.put(httpUrl.host(), list);
@@ -58,6 +70,42 @@ public abstract class BaseRetrofit {
                 .client(client.build())
                 .addConverterFactory(GsonConverterFactory.create())//Gson
                 .build();
+    }
+
+
+    /**
+     * 获取下载的Retrofit
+     *
+     * @param callback
+     * @param <T>
+     * @return
+     */
+    protected <T> Retrofit getRetrofit(final RetrofitCallback<T> callback) {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.addInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Response proceed = chain.proceed(chain.request());
+                return proceed.newBuilder().body(new FileResponseBody<T>(proceed.body(), callback)).build();
+            }
+        });
+
+
+        //        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        //                .addNetworkInterceptor(
+        //                        new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        //                .connectTimeout(6, TimeUnit.SECONDS)
+        //                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(builder.build())
+                //.client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                //.baseUrl(BASE_URL)
+                .baseUrl(getBaseUrl())
+                .build();
+
+        return retrofit;
     }
 
     /**

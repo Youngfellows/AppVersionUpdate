@@ -2,6 +2,9 @@ package com.aispeech.tvui.common.retrofit;
 
 import android.util.Log;
 
+import com.aispeech.tvui.common.interfaces.DoanloadCallback;
+import com.aispeech.tvui.common.interfaces.RequestCallback;
+import com.aispeech.tvui.common.net.RetrofitCallback;
 import com.aispeech.tvui.common.util.TLog;
 
 import java.io.BufferedInputStream;
@@ -119,7 +122,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      *
      * @param url 地址
      */
-    public void asyncGet(String url, final RequestCallback requestCallback) {
+    public void asyncGet(String url, final RequestCallback callback) {
         Call<ResponseBody> call = apiService.executeGet(url);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -127,9 +130,9 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
                 TLog.v(TAG, "onResponse: " + response.body().toString());
                 if (response.isSuccessful()) {
                     try {
-                        requestCallback.onSuccess(response.body().string());
+                        callback.onSuccess(response.body().string());
                     } catch (IOException e) {
-                        requestCallback.onFaliue(e.getMessage());
+                        callback.onFailure(e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -138,7 +141,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure" + t.toString());
-                requestCallback.onFaliue(t.getMessage());
+                callback.onFailure(t.getMessage());
             }
         });
     }
@@ -149,7 +152,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param url 地址
      * @param map 参数集合
      */
-    public void asyncGet(String url, Map<String, String> map, final RequestCallback requestCallback) {
+    public void asyncGet(String url, Map<String, String> map, final RequestCallback callback) {
         Call<ResponseBody> call = apiService.executeGet(url, map);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -157,9 +160,9 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
                 TLog.v(TAG, "onResponse: " + response.body().toString());
                 if (response.isSuccessful()) {
                     try {
-                        requestCallback.onSuccess(response.body().string());
+                        callback.onSuccess(response.body().string());
                     } catch (IOException e) {
-                        requestCallback.onFaliue(e.getMessage());
+                        callback.onFailure(e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -168,7 +171,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure" + t.toString());
-                requestCallback.onFaliue(t.getMessage());
+                callback.onFailure(t.getMessage());
             }
         });
     }
@@ -179,7 +182,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param url 地址
      * @param map 参数集合
      */
-    public void asyncPost(String url, Map<String, String> map, final RequestCallback requestCallback) {
+    public void asyncPost(String url, Map<String, String> map, final RequestCallback callback) {
         Call<ResponseBody> call = apiService.executePost(url, map);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -187,9 +190,9 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
                 TLog.v(TAG, "onResponse: " + response.body().toString());
                 if (response.isSuccessful()) {
                     try {
-                        requestCallback.onSuccess(response.body().string());
+                        callback.onSuccess(response.body().string());
                     } catch (IOException e) {
-                        requestCallback.onFaliue(e.getMessage());
+                        callback.onFailure(e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -198,7 +201,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure");
-                requestCallback.onFaliue(t.getMessage());
+                callback.onFailure(t.getMessage());
             }
         });
     }
@@ -365,13 +368,60 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
     }
 
     /**
+     * 文件下载
+     *
+     * @param fileUrl 下载路径
+     */
+    public void download(final String fileUrl, final DoanloadCallback doanloadCallback) {
+
+        RetrofitCallback<ResponseBody> retrofitCallback = new RetrofitCallback<ResponseBody>() {
+            @Override
+            public void onSuccess(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.i(TAG, "onSuccess: code = " + response.code());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.i(TAG, "onFailure " + t.getMessage());
+            }
+
+            @Override
+            public void onLoading(long total, long progress, boolean done) {
+//                super.onLoading(total, progress, done);
+                Log.i(TAG, "onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
+            }
+        };
+        Retrofit retrofit = getRetrofit(retrofitCallback);
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<ResponseBody> call = apiService.downloadFile(fileUrl);
+        call.enqueue(retrofitCallback);
+    }
+
+    private RetrofitCallback<ResponseBody> mRetrofitCallback = new RetrofitCallback<ResponseBody>() {
+        @Override
+        public void onSuccess(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+        }
+
+        @Override
+        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+        }
+
+        @Override
+        public void onLoading(long total, long progress, boolean done) {
+            super.onLoading(total, progress, done);
+        }
+    };
+
+    /**
      * 上送数据
      *
-     * @param url             上送地址
-     * @param json            JSO弄数据,默认传入数据为json格式，无需再次进行object to json转换
-     * @param requestCallback 上送回调
+     * @param url      上送地址
+     * @param json     JSO弄数据,默认传入数据为json格式，无需再次进行object to json转换
+     * @param callback 上送回调
      */
-    public void upLoadJson(String url, String json, final RequestCallback requestCallback) {
+    public void upLoadJson(String url, String json, final RequestCallback callback) {
         TLog.d(TAG, "json: " + json + "\n");
         final RequestBody requestBody = RequestBody.create(MediaType.parse(
                 "application/json; charset=utf-8"), json);
@@ -382,21 +432,21 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
                 if (response.isSuccessful()) {
                     TLog.v(TAG, "isSuccessful onResponse: " + response.body().toString());
                     try {
-                        requestCallback.onSuccess(response.body().string());
+                        callback.onSuccess(response.body().string());
                     } catch (IOException e) {
-                        requestCallback.onFaliue(e.getMessage());
+                        callback.onFailure(e.getMessage());
                         e.printStackTrace();
                     }
                 } else {
                     TLog.v(TAG, "is not Success");
-                    requestCallback.onFaliue("request is failure");
+                    callback.onFailure("request is failure");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure");
-                requestCallback.onFaliue(t.getMessage());
+                callback.onFailure(t.getMessage());
             }
         });
     }
@@ -404,12 +454,13 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
     /**
      * 单文件上传，表单形式
      *
-     * @param url             服务器地址
-     * @param file            文件地址
-     * @param requestCallback 回调
-     * @param map             参数列表,key为参数名，value为参数值
+     * @param url      服务器地址
+     * @param file     文件地址
+     * @param callback 回调
+     * @param map      参数列表,key为参数名，value为参数值
      */
-    public void upLoadFile(String url, Map<String, String> map, File file, final RequestCallback requestCallback) {
+
+    public void upLoadFile(String url, Map<String, String> map, File file, final RequestCallback callback) {
         Map<String, RequestBody> mapRequestBody = new HashMap<>();
         MediaType textType = MediaType.parse("text/plain");
         Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
@@ -428,9 +479,9 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
                 if (response.isSuccessful()) {
                     TLog.v(TAG, "isSuccessful onResponse: " + response.body().toString());
                     try {
-                        requestCallback.onSuccess(response.body().string());
+                        callback.onSuccess(response.body().string());
                     } catch (IOException e) {
-                        requestCallback.onFaliue(e.getMessage());
+                        callback.onFailure(e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -439,7 +490,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure");
-                requestCallback.onFaliue(t.getMessage());
+                callback.onFailure(t.getMessage());
             }
         });
     }

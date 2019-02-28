@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.aispeech.tvui.common.interfaces.DoanloadCallback;
-import com.aispeech.tvui.common.interfaces.UpgradeRequestCallBack;
+import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.util.AppVersionUtils;
 import com.aispeech.tvui.common.util.PreferenceUtils;
 import com.aispeech.tvui.common.util.TimeUtils;
@@ -421,16 +421,16 @@ public class UpgradeService extends Service {
     /**
      * 拉取更新配置信息
      */
-    private UpgradeRequestCallBack mUpgradeRequestCallBack = new UpgradeRequestCallBack() {
+    private RequestCallback mUpgradeRequestCallBack = new RequestCallback() {
         @Override
-        public void requestSuccess(String data) {
+        public void onSuccess(String data) {
             Log.i(TAG, "拉取更新配置信息成功");
             Log.i(TAG, "data: " + data);
             processUpgradeJson(data);
         }
 
         @Override
-        public void requestError(String exception) {
+        public void onFailure(String exception) {
             Log.e(TAG, "拉取更新配置信息错误: " + exception);
         }
     };
@@ -438,16 +438,16 @@ public class UpgradeService extends Service {
     /**
      * 获取配置单
      */
-    private UpgradeRequestCallBack mUpgradeConfigRequestCallBack = new UpgradeRequestCallBack() {
+    private RequestCallback mUpgradeConfigRequestCallBack = new RequestCallback() {
         @Override
-        public void requestSuccess(String data) {
+        public void onSuccess(String data) {
             Log.i(TAG, "获取配置单成功");
             //            Log.i(TAG, data);
             processUpgradeConfigJson(data);
         }
 
         @Override
-        public void requestError(String exception) {
+        public void onFailure(String exception) {
             Log.e(TAG, "获取配置单错误");
         }
     };

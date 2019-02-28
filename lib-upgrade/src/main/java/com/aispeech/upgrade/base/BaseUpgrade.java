@@ -5,7 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.aispeech.tvui.common.interfaces.DoanloadCallback;
-import com.aispeech.tvui.common.interfaces.UpgradeRequestCallBack;
+import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.manager.RetrofitManager;
 import com.aispeech.tvui.common.util.AppVersionUtils;
 import com.aispeech.tvui.common.util.FileUtil;
@@ -45,7 +45,7 @@ public class BaseUpgrade {
      * @param callback 请求回调
      * @param map      参数列表
      */
-    public static void upgradeVersion(String baseURL, Map<String, String> map, final UpgradeRequestCallBack callback) {
+    public static void upgradeVersion(String baseURL, Map<String, String> map, final RequestCallback callback) {
         //        RequestManager.getInstance().upgradeVersion(context, url, paramMap, callback);
         RetrofitManager.getInstance().upgradeVersion(baseURL, map, callback);
     }
@@ -56,7 +56,7 @@ public class BaseUpgrade {
      * @param baseURL  请求URL
      * @param callback 请求回调
      */
-    public static void upgradeConfig(String baseURL, final UpgradeRequestCallBack callback) {
+    public static void upgradeConfig(String baseURL, final RequestCallback callback) {
         RetrofitManager.getInstance().upgradeConfig(baseURL, callback);
     }
 

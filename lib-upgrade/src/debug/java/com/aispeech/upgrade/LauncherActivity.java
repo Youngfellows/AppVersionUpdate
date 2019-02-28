@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.aispeech.tvui.common.interfaces.DoanloadCallback;
-import com.aispeech.tvui.common.interfaces.UpgradeRequestCallBack;
+import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.manager.RetrofitManager;
 import com.aispeech.tvui.common.util.URLUtils;
 import com.aispeech.upgrade.base.TvuiUpgrade;
@@ -107,9 +107,9 @@ public class LauncherActivity extends AppCompatActivity {
         //        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/version-guide-1.1.json";
         String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/tvuipublic/version-guide-1.1.json";
 
-        RetrofitManager.getInstance().upgradeConfig(configUrl, new UpgradeRequestCallBack() {
+        RetrofitManager.getInstance().upgradeConfig(configUrl, new RequestCallback() {
             @Override
-            public void requestSuccess(String data) {
+            public void onSuccess(String data) {
 
                 UpdateAppConfigBean configBean = JSON.parseObject(data, UpdateAppConfigBean.class);
                 List<Content> appArray = configBean.getContent();
@@ -129,8 +129,8 @@ public class LauncherActivity extends AppCompatActivity {
             }
 
             @Override
-            public void requestError(String exception) {
-                Log.e(TAG, "requestError " + exception);
+            public void onFailure(String exception) {
+                Log.e(TAG, "onFailure " + exception);
             }
         });
     }
@@ -178,15 +178,15 @@ public class LauncherActivity extends AppCompatActivity {
         map.put("deviceId", deviceId);
         map.put("packageName", packageName);
 
-        RetrofitManager.getInstance().upgradeVersion(url, map, new UpgradeRequestCallBack() {
+        RetrofitManager.getInstance().upgradeVersion(url, map, new RequestCallback() {
             @Override
-            public void requestSuccess(String data) {
-                Log.i(TAG, "requestSuccess 版本更新信息==>> " + data);
+            public void onSuccess(String data) {
+                Log.i(TAG, "onSuccess 版本更新信息==>> " + data);
             }
 
             @Override
-            public void requestError(String exception) {
-                Log.e(TAG, "requestError " + exception);
+            public void onFailure(String exception) {
+                Log.e(TAG, "onFailure " + exception);
             }
         });
     }

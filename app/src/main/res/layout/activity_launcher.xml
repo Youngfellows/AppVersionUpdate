@@ -25,6 +25,12 @@
             android:onClick="download2"
             android:text="下载APK二"/>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="download3"
+            android:text="下载APK三"/>
+
 
     </LinearLayout>
 

@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.aispeech.tvui.common.interfaces.DoanloadCallback;
-import com.aispeech.tvui.common.interfaces.UpgradeRequestCallBack;
+import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.manager.RetrofitManager;
 import com.aispeech.tvui.common.retrofit.DownloadListener;
 import com.aispeech.tvui.common.retrofit.RetrofitClient;
@@ -138,6 +138,45 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 重构后下载
+     *
+     * @param view
+     */
+    public void download3(View view) {
+        Log.i(TAG, "使用重构后方式下载");
+
+        //        final String fileUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/tvui-tv/tvui-tv-dangbei-1.0.11.180929.2-1011.apk";
+        //        final String fileUrl = "http://bsl-cdn.ottboxer.cn/apkmarket_file/app/video/iqiyi_voice/GitvVideo-release-one-weihaokeji-kaV11906-tv8.1.0-r73356-gitv-auto_player.apk";
+
+        //        final String fileUrl = "http://bsl-cdn.ottboxer.cn/apkmarket_file/app/system_recommend/gqzbncb/BA_LIVE[BETA]_ALI_20180831_10022.apk";
+
+        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/video/CIBN_dangbei/10034989_CIBN_CoolMiao_dangbei12.apk";
+
+        //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/video/ystjg/tv_video_3.3.2.2020_android_13090.apk";
+
+        //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
+
+        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DoanloadCallback() {
+
+        RetrofitClient.getRetrofitClient().download(fileUrl, new DoanloadCallback() {
+            @Override
+            public void onSuccess(File file) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+
+            }
+
+            @Override
+            public void onLoading(long total, long progress, boolean done) {
+                Log.i(TAG, "chonggou onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
+            }
+        });
+    }
+
 
     /**
      * 更新配置单
@@ -149,9 +188,9 @@ public class MainActivity extends AppCompatActivity {
         //        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/version-guide-1.1.json";
         String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/tvuipublic/version-guide-1.1.json";
 
-        RetrofitManager.getInstance().upgradeConfig(configUrl, new UpgradeRequestCallBack() {
+        RetrofitManager.getInstance().upgradeConfig(configUrl, new RequestCallback() {
             @Override
-            public void requestSuccess(String data) {
+            public void onSuccess(String data) {
 
                 UpdateAppConfigBean configBean = JSON.parseObject(data, UpdateAppConfigBean.class);
                 List<Content> appArray = configBean.getContent();
@@ -171,8 +210,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void requestError(String exception) {
-                Log.e(TAG, "requestError " + exception);
+            public void onFailure(String exception) {
+                Log.e(TAG, "onFailure " + exception);
             }
         });
     }
@@ -208,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void requestError(String exception) {
-                Log.e(TAG, "requestError " + exception);
+                Log.e(TAG, "onFailure " + exception);
             }
         });
     }
@@ -256,15 +295,15 @@ public class MainActivity extends AppCompatActivity {
         map.put("deviceId", deviceId);
         map.put("packageName", packageName);
 
-        RetrofitManager.getInstance().upgradeVersion(url, map, new UpgradeRequestCallBack() {
+        RetrofitManager.getInstance().upgradeVersion(url, map, new RequestCallback() {
             @Override
-            public void requestSuccess(String data) {
-                Log.i(TAG, "requestSuccess 版本更新信息==>> " + data);
+            public void onSuccess(String data) {
+                Log.i(TAG, "onSuccess 版本更新信息==>> " + data);
             }
 
             @Override
-            public void requestError(String exception) {
-                Log.e(TAG, "requestError " + exception);
+            public void onFailure(String exception) {
+                Log.e(TAG, "onFailure " + exception);
             }
         });
     }
@@ -310,17 +349,17 @@ public class MainActivity extends AppCompatActivity {
         map.put("deviceId", deviceId);
         map.put("packageName", packageName);
 
-       RetrofitClient.getRetrofitClient().upgradeVersion(url, map, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
-           @Override
-           public void requestSuccess(String data) {
-               Log.i(TAG, "si.min requestSuccess 版本更新信息==>> " + data);
-           }
+        RetrofitClient.getRetrofitClient().upgradeVersion(url, map, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+            @Override
+            public void requestSuccess(String data) {
+                Log.i(TAG, "si.min onSuccess 版本更新信息==>> " + data);
+            }
 
-           @Override
-           public void requestError(String exception) {
-               Log.e(TAG, "requestError " + exception);
-           }
-       });
+            @Override
+            public void requestError(String exception) {
+                Log.e(TAG, "onFailure " + exception);
+            }
+        });
     }
 
     /**

@@ -13,18 +13,19 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
+import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 
 
-
 public interface ApiService {
 
     /**
-     *  get请求,
-     * @param url   请求地址
-     * @param maps  参数集合
+     * get请求,
+     *
+     * @param url  请求地址
+     * @param maps 参数集合
      * @return
      */
     @GET
@@ -33,8 +34,9 @@ public interface ApiService {
             @QueryMap Map<String, String> maps);
 
     /**
-     *get请求
-     * @param url   请求地址
+     * get请求
+     *
+     * @param url 请求地址
      * @return
      */
     @GET
@@ -42,9 +44,10 @@ public interface ApiService {
             @Url String url);
 
     /**
-     *  post请求
-     * @param url 请求地址
-     * @param maps  参数集合
+     * post请求
+     *
+     * @param url  请求地址
+     * @param maps 参数集合
      * @return
      */
     @POST
@@ -53,10 +56,11 @@ public interface ApiService {
             @FieldMap Map<String, String> maps);
 
     /**
-     *  单文件上传，表单形式
-     * @param url   上传地址
-     * @param args  参数
-     * @param file  文件
+     * 单文件上传，表单形式
+     *
+     * @param url  上传地址
+     * @param args 参数
+     * @param file 文件
      * @return
      */
     @Multipart
@@ -66,9 +70,10 @@ public interface ApiService {
             @PartMap Map<String, RequestBody> args, @Part MultipartBody.Part file);
 
     /**
-     *  单文件上传
-     * @param url   上传地址
-     * @param body  内容
+     * 单文件上传
+     *
+     * @param url  上传地址
+     * @param body 内容
      * @return
      */
     @POST
@@ -78,11 +83,21 @@ public interface ApiService {
     );
 
     /**
-     *  单文件下载
+     * 单文件下载
+     *
      * @param fileUrl 下载地址
      * @return
      */
     @Streaming
     @GET
     Call<ResponseBody> downloadFile(@Url String fileUrl);
+
+    /**
+     * 文件下载
+     *
+     * @param url
+     * @return
+     */
+    @GET("{url}")
+    Call<ResponseBody> download(@Path(value = "url", encoded = true) String url);
 }

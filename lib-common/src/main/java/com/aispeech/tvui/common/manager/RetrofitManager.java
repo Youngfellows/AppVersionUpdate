@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.aispeech.tvui.common.entity.FileDownloadEntity;
 import com.aispeech.tvui.common.interfaces.DoanloadCallback;
-import com.aispeech.tvui.common.interfaces.UpgradeRequestCallBack;
+import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.net.IApiService;
 import com.aispeech.tvui.common.net.RetrofitCallback;
 import com.aispeech.tvui.common.net.RetrofitClient;
@@ -154,7 +154,7 @@ public class RetrofitManager {
      * @param configUrl 配置文件url
      * @param callback  回调
      */
-    public void upgradeConfig(String configUrl, final UpgradeRequestCallBack callback) {
+    public void upgradeConfig(String configUrl, final RequestCallback callback) {
         String url = URLUtils.getUrl(configUrl);
         String baseUrl = URLUtils.getHost(configUrl);
         Log.i(TAG, baseUrl);
@@ -171,12 +171,12 @@ public class RetrofitManager {
                             String data = response.body().string();
                             Log.i(TAG, "data -->>>  " + data);
                             if (callback != null) {
-                                callback.requestSuccess(data);
+                                callback.onSuccess(data);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                             if (callback != null) {
-                                callback.requestError(e.getMessage());
+                                callback.onFailure(e.getMessage());
                             }
                         }
                     }
@@ -186,7 +186,7 @@ public class RetrofitManager {
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(TAG, "onFailure " + t.getMessage());
                     if (callback != null) {
-                        callback.requestError(t.getMessage());
+                        callback.onFailure(t.getMessage());
                     }
                 }
             });
@@ -194,7 +194,7 @@ public class RetrofitManager {
         } catch (Exception e) {
             e.printStackTrace();
             if (callback != null) {
-                callback.requestError("baseUrl参数异常: " + baseUrl);
+                callback.onFailure("baseUrl参数异常: " + baseUrl);
             }
         }
     }
@@ -209,8 +209,8 @@ public class RetrofitManager {
      *                 packageName 包名
      * @param callback 回调
      */
-    //    public void upgradeVersion(String baseURL, String productId, String versionCode, String deviceId, String packageName, final UpgradeRequestCallBack callback) {
-    public void upgradeVersion(String baseURL, Map<String, String> map, final UpgradeRequestCallBack callback) {
+    //    public void upgradeVersion(String baseURL, String productId, String versionCode, String deviceId, String packageName, final RequestCallback callback) {
+    public void upgradeVersion(String baseURL, Map<String, String> map, final RequestCallback callback) {
 
         /**
          * 触发网络请求,先拉取是否可以更新
@@ -257,12 +257,12 @@ public class RetrofitManager {
                             String data = response.body().string();
                             Log.i(TAG, "data -->>>  " + data);
                             if (callback != null) {
-                                callback.requestSuccess(data);
+                                callback.onSuccess(data);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                             if (callback != null) {
-                                callback.requestError(e.getMessage());
+                                callback.onFailure(e.getMessage());
                             }
                         }
                     }
@@ -272,14 +272,14 @@ public class RetrofitManager {
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(TAG, "onFailure " + t.getMessage());
                     if (callback != null) {
-                        callback.requestError(t.getMessage());
+                        callback.onFailure(t.getMessage());
                     }
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
             if (callback != null) {
-                callback.requestError("baseUrl参数异常: " + baseUrl);
+                callback.onFailure("baseUrl参数异常: " + baseUrl);
             }
         }
     }
