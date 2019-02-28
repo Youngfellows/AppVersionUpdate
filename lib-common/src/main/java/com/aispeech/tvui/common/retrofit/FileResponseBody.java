@@ -1,4 +1,4 @@
-package com.aispeech.tvui.common.net;
+package com.aispeech.tvui.common.retrofit;
 
 import java.io.IOException;
 

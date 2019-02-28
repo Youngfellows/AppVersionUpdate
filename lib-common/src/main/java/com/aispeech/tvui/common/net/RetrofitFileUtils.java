@@ -1,5 +1,8 @@
 package com.aispeech.tvui.common.net;
 
+import com.aispeech.tvui.common.retrofit.FileResponseBody;
+import com.aispeech.tvui.common.retrofit.RetrofitCallback;
+
 import java.io.IOException;
 
 import okhttp3.Interceptor;

@@ -2,18 +2,13 @@ package com.aispeech.tvui.common.retrofit;
 
 import android.util.Log;
 
-import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
-import com.aispeech.tvui.common.net.RetrofitCallback;
+import com.aispeech.tvui.common.interfaces.RetrofitDownCallback;
 import com.aispeech.tvui.common.util.TLog;
 import com.aispeech.tvui.common.util.URLUtils;
 
-import java.io.BufferedInputStream;
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,9 +20,12 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
-public class RetrofitClient extends BaseRetrofit implements ApiFuction {
+/**
+ * 统一处理Retrofit的Post、Get请求(同步、异步)
+ * 统一处理Retrofit的文件下载请求
+ */
+public class RetrofitClient extends BaseRetrofit {
     private String TAG = getClass().getSimpleName();
     private volatile static RetrofitClient instance;
     private ApiService mCommonApiService;
@@ -121,7 +119,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 TLog.v(TAG, "onResponse: " + response.body().toString());
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && callback != null) {
                     try {
                         callback.onSuccess(response.body().string());
                     } catch (IOException e) {
@@ -134,7 +132,9 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure" + t.toString());
-                callback.onFailure(t.getMessage());
+                if (callback != null) {
+                    callback.onFailure(t.getMessage());
+                }
             }
         });
     }
@@ -151,7 +151,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 TLog.v(TAG, "onResponse: " + response.body().toString());
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && callback != null) {
                     try {
                         callback.onSuccess(response.body().string());
                     } catch (IOException e) {
@@ -164,7 +164,9 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure" + t.toString());
-                callback.onFailure(t.getMessage());
+                if (callback != null) {
+                    callback.onFailure(t.getMessage());
+                }
             }
         });
     }
@@ -181,7 +183,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 TLog.v(TAG, "onResponse: " + response.body().toString());
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && callback != null) {
                     try {
                         callback.onSuccess(response.body().string());
                     } catch (IOException e) {
@@ -194,178 +196,53 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 TLog.v(TAG, "onFailure");
-                callback.onFailure(t.getMessage());
-            }
-        });
-    }
-
-
-    /**
-     * 请求版本更新
-     *
-     * @param baseURL  url
-     * @param map      参数集合
-     * @param callback 回调
-     */
-    @Override
-    public void upgradeVersion(String baseURL, Map<String, String> map, final UpgradeRequestCallBack callback) {
-        Call<ResponseBody> call = mCommonApiService.executeGet(baseURL, map);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                TLog.d(TAG, "onResponse： " + response.body().toString());
-                if (response.isSuccessful()) {
-                    try {
-                        callback.requestSuccess(response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        callback.requestError(e.getMessage());
-                    }
+                if (callback != null) {
+                    callback.onFailure(t.getMessage());
                 }
             }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e(TAG, "onFailure " + t.getMessage());
-                callback.requestError(t.getMessage());
-            }
         });
     }
 
     /**
-     * 获取更新配置单
+     * 1.使用默认请求体
+     * 2.同步文件保存的进度
      *
-     * @param configUrl rul
-     * @param callback  回调
+     * @param fileUrl      下载路径
+     * @param downCallback 回调
      */
-    @Override
-    public void upgradeConfig(String configUrl, final UpgradeRequestCallBack callback) {
-        Call<ResponseBody> call = mCommonApiService.executeGet(configUrl);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                TLog.d(TAG, "onResponse: " + response.body().toString());
-                if (response.isSuccessful()) {
-                    try {
-                        callback.requestSuccess(response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        callback.requestError(e.getMessage());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                TLog.d(TAG, "onFailure" + t.toString());
-                t.printStackTrace();
-                callback.requestError(t.toString());
-            }
-        });
-    }
-
-    /**
-     * 文件下载
-     *
-     * @param fileUrl  下载地址
-     * @param dirPath  本地保存文件夹名
-     * @param fileName 本地保存文件名
-     * @param callback 下载回调
-     */
-    @Override
-    public void download(final String fileUrl, final String dirPath, final String fileName, final DownloadListener callback) {
-        Call<ResponseBody> call = mCommonApiService.downloadFile(fileUrl);
+    public void download2(final String fileUrl, final RetrofitDownCallback<ResponseBody> downCallback) {
+        Call<ResponseBody> call = mCommonApiService.download2(fileUrl);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
-                Log.e(TAG, "onResponse: code = " + response.code());
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        InputStream is = null;
-                        FileOutputStream fos = null;
-                        BufferedInputStream bis = null;
-                        try {
-                            is = response.body().byteStream();
-                            //获取文件总长度
-                            long totalLength = response.body().contentLength();
-                            long currentLength = 0;
-                            boolean done = false;
-                            int progress = 0;
-
-                            //创建文件夹
-                            File f = new File(dirPath);
-                            if (!f.exists()) {
-                                f.mkdirs();
-                            }
-
-                            //创建文件
-                            File file = new File(f, fileName);
-                            if (file.exists()) {
-                                Log.i(TAG, "文件已经纯在了，删除");
-                                file.delete();
-                            }
-
-                            fos = new FileOutputStream(file);
-                            bis = new BufferedInputStream(is);
-                            byte[] buffer = new byte[1024];
-                            int len;
-                            while ((len = bis.read(buffer)) != -1) {
-                                fos.write(buffer, 0, len);
-                                //此处进行更新操作
-                                //len即可理解为已下载的字节数
-                                //onLoading(len, totalLength);
-                                currentLength += len;
-                                progress = (int) (100 * currentLength / totalLength);
-                                if (progress == 100) {
-                                    done = true;
-                                }
-                                callback.onLoading(totalLength, currentLength, done);
-                                Log.w(TAG, "totalLength: " + totalLength + ",currentLength: " + currentLength + " ,progress: " + progress);
-                            }
-                            fos.flush();
-                            TLog.d(TAG, "文件保存成功： " + file.getPath());
-                            callback.onSuccess(file);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            callback.onFailure(e);
-                        } finally {
-                            closeStream(is);
-                            closeStream(fos);
-                            closeStream(bis);
-                        }
-                    }
-                }).start();
+                int code = response.code();
+                boolean isSuccessful = response.isSuccessful();
+                Log.d(TAG, "onResponse: code = " + code + " ,isSuccessful = " + isSuccessful);
+                if (downCallback != null) {
+                    downCallback.onSuccess(call, response);
+                }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                TLog.d(TAG, "onFailure: " + t.toString());
+                TLog.e(TAG, "onFailure: " + t.toString());
                 t.printStackTrace();
-                callback.onFailure(t);
+                if (downCallback != null) {
+                    downCallback.onFailure(call, t);
+                }
             }
         });
     }
 
-    /**
-     * 关闭IO流
-     */
-    private void closeStream(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     /**
-     * 文件下载
+     * 1.使用自定义请求体
+     * 2.可以监听Retrofit的实时下载进度
      *
-     * @param fileUrl 下载路径
+     * @param fileUrl      下载路径
+     * @param downCallback 回调
      */
-    public void download(final String fileUrl, final DownloadCallback downloadCallback) {
+    public void download(final String fileUrl, final RetrofitDownCallback<ResponseBody> downCallback) {
         String url = URLUtils.getUrl(fileUrl);
         String baseUrl = URLUtils.getHost(fileUrl);
         Log.i(TAG, baseUrl);
@@ -375,25 +252,30 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
             @Override
             public void onSuccess(Call<ResponseBody> call, Response<ResponseBody> response) {
                 Log.i(TAG, "onSuccess: code = " + response.code());
-                if (response.isSuccessful()) {
-
+                if (response.isSuccessful() && downCallback != null) {
+                    downCallback.onSuccess(call, response);
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.i(TAG, "onFailure " + t.getMessage());
+                if (downCallback != null) {
+                    downCallback.onFailure(call, t);
+                }
             }
 
             @Override
             public void onLoading(long total, long progress, boolean done) {
 //                super.onLoading(total, progress, done);
                 Log.i(TAG, "onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
+                if (downCallback != null) {
+                    downCallback.onLoading(total, progress, done);
+                }
             }
         };
 
-        Retrofit retrofit = getRetrofit(baseUrl, retrofitCallback);
-        ApiService apiService = retrofit.create(ApiService.class);
+        ApiService apiService = getRetrofit(baseUrl, retrofitCallback);
         Call<ResponseBody> call = apiService.download(url);
         call.enqueue(retrofitCallback);
     }
@@ -406,7 +288,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param json     JSO弄数据,默认传入数据为json格式，无需再次进行object to json转换
      * @param callback 上送回调
      */
-    public void upLoadJson(String url, String json, final RequestCallback callback) {
+    public void upLoadJson(String url, String json, final com.aispeech.tvui.common.interfaces.RequestCallback callback) {
         TLog.d(TAG, "json: " + json + "\n");
         final RequestBody requestBody = RequestBody.create(MediaType.parse(
                 "application/json; charset=utf-8"), json);
@@ -445,7 +327,7 @@ public class RetrofitClient extends BaseRetrofit implements ApiFuction {
      * @param map      参数列表,key为参数名，value为参数值
      */
 
-    public void upLoadFile(String url, Map<String, String> map, File file, final RequestCallback callback) {
+    public void upLoadFile(String url, Map<String, String> map, File file, final com.aispeech.tvui.common.interfaces.RequestCallback callback) {
         Map<String, RequestBody> mapRequestBody = new HashMap<>();
         MediaType textType = MediaType.parse("text/plain");
         Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();

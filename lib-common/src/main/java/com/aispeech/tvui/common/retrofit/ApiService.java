@@ -90,7 +90,7 @@ public interface ApiService {
      */
     @Streaming
     @GET
-    Call<ResponseBody> downloadFile(@Url String fileUrl);
+    Call<ResponseBody> download2(@Url String fileUrl);
 
     /**
      * 文件下载

@@ -2,9 +2,6 @@ package com.aispeech.tvui.common.retrofit;
 
 import android.annotation.SuppressLint;
 
-import com.aispeech.tvui.common.net.FileResponseBody;
-import com.aispeech.tvui.common.net.RetrofitCallback;
-
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -31,12 +28,13 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/***
+ * Retrofit封装基类
+ */
 public abstract class BaseRetrofit {
-    private static final int DEFAULT_TIME_OUT = 5;//超时时间 5s
-    private static final int DEFAULT_READ_TIME_OUT = 60;//读操作时间
-
-    protected static final String BASE_URL = "http://www.aispeech.com/";
-    //protected static final String BASE_URL = "https://www.baidu.com/";
+    private final int DEFAULT_TIME_OUT = 5;//超时时间 5s
+    private final int DEFAULT_READ_TIME_OUT = 60;//读操作时间
+    private final String BASE_URL = "http://www.aispeech.com/";
 
     /**
      * 获取普通请求的Retrofit Service
@@ -82,7 +80,7 @@ public abstract class BaseRetrofit {
      * @param <T>
      * @return
      */
-    protected <T> Retrofit getRetrofit(String baseUrl, final RetrofitCallback<T> callback) {
+    protected <T> ApiService getRetrofit(String baseUrl, final RetrofitCallback<T> callback) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.addInterceptor(new Interceptor() {
             @Override
@@ -92,22 +90,12 @@ public abstract class BaseRetrofit {
             }
         });
 
-
-        //        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-        //                .addNetworkInterceptor(
-        //                        new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-        //                .connectTimeout(6, TimeUnit.SECONDS)
-        //                .build();
-
         Retrofit retrofit = new Retrofit.Builder()
                 .client(builder.build())
-                //.client(okHttpClient)
-                //.addConverterFactory(GsonConverterFactory.create())
-                //.baseUrl(BASE_URL)
                 .baseUrl(baseUrl)
                 .build();
-
-        return retrofit;
+        ApiService apiService = retrofit.create(ApiService.class);
+        return apiService;
     }
 
     /**

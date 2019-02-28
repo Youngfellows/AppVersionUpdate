@@ -6,7 +6,7 @@ import com.aispeech.tvui.common.entity.FileDownloadEntity;
 import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
 import com.aispeech.tvui.common.net.IApiService;
-import com.aispeech.tvui.common.net.RetrofitCallback;
+import com.aispeech.tvui.common.retrofit.RetrofitCallback;
 import com.aispeech.tvui.common.net.RetrofitClient;
 import com.aispeech.tvui.common.net.RetrofitFileUtils;
 import com.aispeech.tvui.common.util.URLUtils;

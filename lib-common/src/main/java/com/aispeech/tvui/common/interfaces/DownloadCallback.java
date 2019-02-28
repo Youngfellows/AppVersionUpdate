@@ -2,7 +2,9 @@ package com.aispeech.tvui.common.interfaces;
 
 import java.io.File;
 
-
+/**
+ * Http文件下载回调
+ */
 public interface DownloadCallback {
 
     /**

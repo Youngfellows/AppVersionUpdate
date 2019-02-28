@@ -7,9 +7,8 @@ import android.view.View;
 
 import com.aispeech.tvui.common.interfaces.DownloadCallback;
 import com.aispeech.tvui.common.interfaces.RequestCallback;
+import com.aispeech.tvui.common.retrofit.HttpManager;
 import com.aispeech.tvui.common.manager.RetrofitManager;
-import com.aispeech.tvui.common.retrofit.DownloadListener;
-import com.aispeech.tvui.common.retrofit.RetrofitClient;
 import com.aispeech.tvui.common.util.URLUtils;
 import com.aispeech.upgrade.base.TvuiUpgrade;
 import com.aispeech.upgrade.bean.Content;
@@ -105,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void download2(View view) {
-        Log.i(TAG, "使用simin方式下载");
+        Log.i(TAG, "使用httpManager方式下载");
 
         //        final String fileUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/tvui-tv/tvui-tv-dangbei-1.0.11.180929.2-1011.apk";
         //        final String fileUrl = "http://bsl-cdn.ottboxer.cn/apkmarket_file/app/video/iqiyi_voice/GitvVideo-release-one-weihaokeji-kaV11906-tv8.1.0-r73356-gitv-auto_player.apk";
@@ -118,22 +117,20 @@ public class MainActivity extends AppCompatActivity {
 
         //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
 
-        //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DownloadCallback() {
-
-        RetrofitClient.getInstance().download(fileUrl, "sdcard/Download/", "simin_download333.apk", new DownloadListener() {
+        HttpManager.getInstance().download(fileUrl, "sdcard/Download/", "simin_download333.apk", new DownloadCallback() {
             @Override
             public void onSuccess(File file) {
-                Log.i(TAG, "simin onSuccess path: " + file.getPath());
+                Log.i(TAG, "httpmanager onSuccess path: " + file.getPath());
             }
 
             @Override
             public void onFailure(Throwable error) {
-                Log.e(TAG, "simin onFailure " + error.getMessage());
+                Log.e(TAG, "httpmanager onFailure " + error.getMessage());
             }
 
             @Override
             public void onLoading(long total, long progress, boolean done) {
-                Log.i(TAG, "simin onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
+                Log.i(TAG, "httpmanager onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
             }
         });
     }
@@ -144,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void download3(View view) {
-        Log.i(TAG, "使用重构后方式下载");
+        Log.i(TAG, "使用httpManager保存文件进度方式下载");
 
         //        final String fileUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/tvui-tv/tvui-tv-dangbei-1.0.11.180929.2-1011.apk";
         //        final String fileUrl = "http://bsl-cdn.ottboxer.cn/apkmarket_file/app/video/iqiyi_voice/GitvVideo-release-one-weihaokeji-kaV11906-tv8.1.0-r73356-gitv-auto_player.apk";
@@ -158,23 +155,23 @@ public class MainActivity extends AppCompatActivity {
         //        final String fileUrl = "http://ksyun-cdn.ottboxer.cn/apkmarket_file/app/online_music/QQmusic_TV/qqyy_3.2.0.7_dangbei.apk";
 
         //RetrofitManager.getInstance().download(fileUrl, "sdcard/Download/", "download222.apk", new DownloadCallback() {
-
-        RetrofitClient.getInstance().download(fileUrl, new DownloadCallback() {
+        HttpManager.getInstance().download2(fileUrl, "sdcard/Download/", "simin_download333.apk", new DownloadCallback() {
             @Override
             public void onSuccess(File file) {
-
+                Log.i(TAG, "httpmanager2 onSuccess path: " + file.getPath());
             }
 
             @Override
             public void onFailure(Throwable error) {
-
+                Log.e(TAG, "httpmanager2 onFailure " + error.getMessage());
             }
 
             @Override
             public void onLoading(long total, long progress, boolean done) {
-                Log.i(TAG, "chonggou onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
+                Log.i(TAG, "httpmanager2 onLoading " + (float) (progress * 1.0 / total) * 100 + "% , " + (done ? "下载完成" : "未下载完成"));
             }
         });
+
     }
 
 
@@ -222,12 +219,13 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void upgradeConfig2(View view) {
+        Log.i(TAG, "使用重构后HttpManager更新配置单");
         //        String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/dangbei/version-guide-1.1.json";
         String configUrl = "http://aispeech-tvui-public.oss-cn-shenzhen.aliyuncs.com/release/tvuipublic/version-guide-1.1.json";
 
-        RetrofitClient.getInstance().upgradeConfig(configUrl, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+        HttpManager.getInstance().get(configUrl, new RequestCallback() {
             @Override
-            public void requestSuccess(String data) {
+            public void onSuccess(String data) {
                 UpdateAppConfigBean configBean = JSON.parseObject(data, UpdateAppConfigBean.class);
                 List<Content> appArray = configBean.getContent();
                 Content tvuiApp = null;//TVUI下载信息
@@ -241,13 +239,12 @@ public class MainActivity extends AppCompatActivity {
                     String appUrl = app.getUrl();
 
                     Log.d(TAG, "si.min component: " + component + "\nversionCode: " + mDownVersionCode + "\nversionName: " + mDownVersionName + "\nmd5: " + mMd5 + "\nappUrl: " + appUrl + "\nchangeLog: " + changeLog);
-
                 }
             }
 
             @Override
-            public void requestError(String exception) {
-                Log.e(TAG, "onFailure " + exception);
+            public void onFailure(String exception) {
+                Log.e(TAG, "onFailure: ");
             }
         });
     }
@@ -314,6 +311,8 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void upgradeVersion2(View view) {
+        Log.i(TAG, "使用重构后HttpManager拉取版本更新");
+
         /**
          * 触发网络请求,先拉取是否可以更新
          * mBaseUrl: http://test.iot.aispeech.com:8089/skyline-iot-api/api/v2/tv/versionUpgrade ,productId: 278572232 ,deviceId: 4d07e4be9184e15a8b483c97077e171b
@@ -349,15 +348,15 @@ public class MainActivity extends AppCompatActivity {
         map.put("deviceId", deviceId);
         map.put("packageName", packageName);
 
-        RetrofitClient.getInstance().upgradeVersion(url, map, new com.aispeech.tvui.common.retrofit.UpgradeRequestCallBack() {
+        HttpManager.getInstance().get(url, map, new RequestCallback() {
             @Override
-            public void requestSuccess(String data) {
-                Log.i(TAG, "si.min onSuccess 版本更新信息==>> " + data);
+            public void onSuccess(String data) {
+                Log.i(TAG, "httpManager onSuccess 版本更新信息==>> " + data);
             }
 
             @Override
-            public void requestError(String exception) {
-                Log.e(TAG, "onFailure " + exception);
+            public void onFailure(String exception) {
+                Log.e(TAG, "httpManager onFailure " + exception);
             }
         });
     }
